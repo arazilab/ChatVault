@@ -24,10 +24,11 @@ export default defineContentScript({
             '/backend-api/conversations?offset=0&limit=100',
             { credentials: 'include' },
           );
-          if (!response.ok)
+          if (!response.ok) {
             throw new Error(
-              `ChatGPT request failed with status ${response.status}`,
+              `HTTP ${response.status} ${response.statusText || 'request failed'}`,
             );
+          }
           const payload: unknown = await response.json();
           const items =
             payload &&
@@ -66,8 +67,7 @@ export default defineContentScript({
             {
               type: 'chatgpt.error',
               requestId: event.data.requestId,
-              message:
-                error instanceof Error ? error.message : 'Request failed',
+              message: error instanceof Error ? error.message : String(error),
             },
             window.location.origin,
           );

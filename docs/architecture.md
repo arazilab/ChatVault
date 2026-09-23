@@ -1,6 +1,6 @@
 # Architecture
 
-Universal Chat Backup has five layers.
+ChatVault has five layers.
 
 ```mermaid
 flowchart TD
@@ -33,4 +33,3 @@ Exporters read normalized records only. Canonical JSON is lossless within the sc
 ## Security boundary
 
 All page responses are untrusted. Validate before normalization. Do not export or log cookies, authorization headers, tokens, or message bodies in diagnostics. Do not use arbitrary evaluation or remote scripts.
-

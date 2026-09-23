@@ -1,6 +1,6 @@
 # Agent instructions
 
-Universal Chat Backup is a privacy-first Chrome extension. Keep changes small, testable, and easy to review.
+ChatVault is a privacy-first Chrome extension. Keep changes small, testable, and easy to review.
 
 ## Required reading
 
@@ -48,4 +48,3 @@ npm run build
 ```
 
 If a command is not available yet, add the required script as part of the foundation phase. Use Node LTS and keep dependencies minimal.
-

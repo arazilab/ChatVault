@@ -1,4 +1,4 @@
-# Implementation plan
+# ChatVault implementation plan
 
 ## Goal
 
@@ -62,4 +62,3 @@ Preserve characters, branches, alternatives, edits, and conversation metadata wh
 ## Definition of progress
 
 Each phase ends with applicable checks, documentation updates, and a logical commit. Live platform support is not claimed until the relevant adapter has been tested in an authenticated browser session.
-

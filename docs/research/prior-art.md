@@ -97,4 +97,3 @@ Design consequences
 ## Independent implementation boundary
 
 The project reuses ideas and publicly observable behavior only. It does not copy code, fixtures, private endpoints, credentials, cookies, or authentication instructions. Any future code reuse requires a separate license review and explicit documentation.
-

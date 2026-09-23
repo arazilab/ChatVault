@@ -9,10 +9,19 @@ interface ChatPlatformAdapter {
   readonly hosts: readonly string[];
   detect(context: DetectionContext): Promise<boolean>;
   getAccountMetadata(context: AdapterContext): Promise<AccountMetadata | null>;
-  listConversations(context: AdapterContext, cursor?: string): Promise<ConversationPage>;
-  getConversation(context: AdapterContext, reference: ConversationReference): Promise<NormalizedConversation>;
+  listConversations(
+    context: AdapterContext,
+    cursor?: string,
+  ): Promise<ConversationPage>;
+  getConversation(
+    context: AdapterContext,
+    reference: ConversationReference,
+  ): Promise<NormalizedConversation>;
   getIncrementalState?(context: AdapterContext): Promise<IncrementalState>;
-  getCharacter?(context: AdapterContext, id: string): Promise<NormalizedCharacter | null>;
+  getCharacter?(
+    context: AdapterContext,
+    id: string,
+  ): Promise<NormalizedCharacter | null>;
   getAdditionalData?(context: AdapterContext): Promise<AdditionalPlatformData>;
 }
 ```
@@ -53,4 +62,3 @@ Every adapter passes the shared contract suite. Tests cover host detection, stab
 8. Update platform status and user documentation.
 
 The backup engine, storage layer, archive schema, exporters, and UI should not need platform-specific branches.
-

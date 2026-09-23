@@ -9,4 +9,3 @@ Each account has a platform ID and optional platform account ID and display name
 Stable IDs are preferred for idempotency. Fallback IDs must be deterministic, documented, and scoped to the platform and account. Import must reject unknown future schema versions rather than silently reinterpret them.
 
 The ZIP manifest records schema version, creation time, extension version, included platforms, and file checksums. Authentication material is never part of an archive.
-

@@ -1,6 +1,7 @@
 import type { ChatPlatformAdapter } from './types';
+import { chatgptAdapter } from './chatgpt';
 
-const adapters: ChatPlatformAdapter[] = [];
+const adapters: ChatPlatformAdapter[] = [chatgptAdapter];
 
 export function registerAdapter(adapter: ChatPlatformAdapter): void {
   if (adapters.some((existing) => existing.id === adapter.id))

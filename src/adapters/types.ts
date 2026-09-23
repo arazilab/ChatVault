@@ -13,6 +13,7 @@ export interface DetectionContext {
 
 export interface AdapterContext extends DetectionContext {
   signal?: AbortSignal;
+  request?: (url: string, signal?: AbortSignal) => Promise<unknown>;
 }
 
 export interface ConversationReference {

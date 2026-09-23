@@ -17,9 +17,12 @@ export default defineContentScript({
           (message as { type?: unknown }).type !== 'chatgpt.list'
         )
           return undefined;
-        void fetch('/backend-api/conversations?offset=0&limit=100', {
-          credentials: 'include',
-        })
+        void fetch(
+          '/backend-api/conversations?offset=0&limit=100&order=updated&is_archived=false&is_starred=false',
+          {
+            credentials: 'include',
+          },
+        )
           .then(async (response) => {
             if (!response.ok)
               throw new Error(

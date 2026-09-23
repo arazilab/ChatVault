@@ -112,12 +112,19 @@ export interface ChatGptConversationSummary {
 export function parseConversationSummaries(
   payload: unknown,
 ): ChatGptConversationSummary[] {
-  if (!Array.isArray(payload))
+  const items = Array.isArray(payload)
+    ? payload
+    : payload &&
+        typeof payload === 'object' &&
+        Array.isArray((payload as { items?: unknown }).items)
+      ? (payload as { items: unknown[] }).items
+      : undefined;
+  if (!items)
     throw new BackupError(
       'parse-failure',
       'ChatGPT conversation list was not an array',
     );
-  return payload.flatMap((item) => {
+  return items.flatMap((item) => {
     if (!item || typeof item !== 'object') return [];
     const value = item as Record<string, unknown>;
     const id = asString(value.id);

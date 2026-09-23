@@ -30,8 +30,8 @@ export const chatgptAdapter: ChatPlatformAdapter = {
   async listConversations(context, cursor) {
     const request = requirePageRequest(context);
     const url = cursor
-      ? `/backend-api/conversations?offset=0&limit=100&cursor=${encodeURIComponent(cursor)}`
-      : '/backend-api/conversations?offset=0&limit=100';
+      ? `/backend-api/conversations?offset=${encodeURIComponent(cursor)}&limit=100&order=updated&is_archived=false&is_starred=false`
+      : '/backend-api/conversations?offset=0&limit=100&order=updated&is_archived=false&is_starred=false';
     const payload = await request(url, context.signal);
     const summaries = parseConversationSummaries(payload);
     return {

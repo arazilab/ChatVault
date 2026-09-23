@@ -4,5 +4,37 @@ import './style.css';
 document.querySelector('#app')!.innerHTML = `
   <h1>${PRODUCT_NAME}</h1>
   <p>Your chat data stays on this device.</p>
-  <p>Open a supported chatbot service to check its backup status.</p>
+  <button id="check-chatgpt">Check ChatGPT</button>
+  <p id="status">Open ChatGPT, then check its accessible conversations.</p>
 `;
+
+const status = document.querySelector<HTMLParagraphElement>('#status');
+document
+  .querySelector<HTMLButtonElement>('#check-chatgpt')
+  ?.addEventListener('click', async () => {
+    if (!status) return;
+    status.textContent = 'Checking ChatGPT...';
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const activeTab = tab;
+    if (
+      !activeTab?.id ||
+      (!activeTab.url?.includes('chatgpt.com') &&
+        !activeTab.url?.includes('chat.openai.com'))
+    ) {
+      status.textContent = 'Open ChatGPT in the active tab first.';
+      return;
+    }
+    try {
+      const response = await chrome.tabs.sendMessage<
+        { type: 'chatgpt.list' },
+        { items: unknown[] }
+      >(activeTab.id, { type: 'chatgpt.list' });
+      status.textContent = `${response.items.length} conversations are accessible.`;
+    } catch {
+      status.textContent =
+        'ChatGPT bridge unavailable. Reload the ChatGPT tab and try again.';
+    }
+  });

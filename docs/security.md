@@ -2,6 +2,8 @@
 
 The extension treats every chatbot page and response as untrusted input. Adapters validate structures before normalization. Export filenames are sanitized. Exporters do not render unsanitized HTML in V1.
 
+The ChatGPT test bridge accepts one fixed operation, requests only the same-origin conversation listing endpoint, and validates the response as an array before returning it to the popup. It does not expose cookies or request headers to extension code.
+
 The extension never requests cookies permission unless a documented, reviewed requirement makes it unavoidable. It never asks users to paste credentials, cookies, tokens, or authorization headers. Transient request data is not persisted.
 
 Manifest V3 code is packaged with the extension. The extension does not download or execute code. Page-context bridges, if needed, use strict schemas and are isolated from core storage and export code.

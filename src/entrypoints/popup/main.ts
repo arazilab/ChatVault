@@ -35,8 +35,9 @@ document
       status.textContent = response.error
         ? `ChatGPT error: ${response.error}`
         : `${response.items.length} conversations are accessible.`;
-    } catch {
-      status.textContent =
-        'ChatGPT bridge unavailable. Reload the ChatGPT tab and try again.';
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unknown browser error';
+      status.textContent = `ChatGPT bridge error: ${message}`;
     }
   });

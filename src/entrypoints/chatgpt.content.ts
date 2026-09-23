@@ -25,9 +25,15 @@ export default defineContentScript({
         )
           return undefined;
         const requestId = crypto.randomUUID();
+        let settled = false;
         const handler = (event: MessageEvent<BridgeResponse>) => {
-          if (event.source !== window || event.data.requestId !== requestId)
+          if (
+            settled ||
+            event.source !== window ||
+            event.data.requestId !== requestId
+          )
             return;
+          settled = true;
           window.removeEventListener('message', handler);
           if (event.data.type === 'chatgpt.list.result') {
             sendResponse({
@@ -45,6 +51,15 @@ export default defineContentScript({
           { type: 'chatgpt.list', requestId },
           window.location.origin,
         );
+        window.setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          window.removeEventListener('message', handler);
+          sendResponse({
+            items: [],
+            error: 'Page bridge timed out',
+          } satisfies PopupResponse);
+        }, 10000);
         return true;
       },
     );

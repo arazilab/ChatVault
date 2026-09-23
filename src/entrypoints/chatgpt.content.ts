@@ -7,6 +7,11 @@ interface BridgeResponse {
   message?: string;
 }
 
+interface PopupResponse {
+  items: unknown[];
+  error?: string;
+}
+
 export default defineContentScript({
   matches: ['https://chatgpt.com/*', 'https://chat.openai.com/*'],
   runAt: 'document_start',
@@ -24,9 +29,16 @@ export default defineContentScript({
           if (event.source !== window || event.data.requestId !== requestId)
             return;
           window.removeEventListener('message', handler);
-          if (event.data.type === 'chatgpt.list.result')
-            sendResponse({ items: event.data.items ?? [] });
-          else sendResponse({ items: [] });
+          if (event.data.type === 'chatgpt.list.result') {
+            sendResponse({
+              items: event.data.items ?? [],
+            } satisfies PopupResponse);
+          } else {
+            sendResponse({
+              items: [],
+              error: event.data.message ?? 'ChatGPT request failed',
+            } satisfies PopupResponse);
+          }
         };
         window.addEventListener('message', handler);
         window.postMessage(

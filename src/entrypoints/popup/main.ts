@@ -30,9 +30,11 @@ document
     try {
       const response = await chrome.tabs.sendMessage<
         { type: 'chatgpt.list' },
-        { items: unknown[] }
+        { items: unknown[]; error?: string }
       >(activeTab.id, { type: 'chatgpt.list' });
-      status.textContent = `${response.items.length} conversations are accessible.`;
+      status.textContent = response.error
+        ? `ChatGPT error: ${response.error}`
+        : `${response.items.length} conversations are accessible.`;
     } catch {
       status.textContent =
         'ChatGPT bridge unavailable. Reload the ChatGPT tab and try again.';

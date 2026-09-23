@@ -34,9 +34,25 @@ export default defineContentScript({
             typeof payload === 'object' &&
             Array.isArray((payload as { items?: unknown }).items)
               ? (payload as { items: unknown[] }).items
-              : Array.isArray(payload)
-                ? payload
-                : [];
+              : payload &&
+                  typeof payload === 'object' &&
+                  Array.isArray(
+                    (payload as { conversations?: unknown }).conversations,
+                  )
+                ? (payload as { conversations: unknown[] }).conversations
+                : payload &&
+                    typeof payload === 'object' &&
+                    Array.isArray((payload as { data?: unknown }).data)
+                  ? (payload as { data: unknown[] }).data
+                  : Array.isArray(payload)
+                    ? payload
+                    : [];
+          if (items.length === 0 && payload && typeof payload === 'object') {
+            const keys = Object.keys(payload).join(', ');
+            throw new Error(
+              `ChatGPT returned no conversation items. Response fields: ${keys || 'none'}`,
+            );
+          }
           window.postMessage(
             {
               type: 'chatgpt.list.result',

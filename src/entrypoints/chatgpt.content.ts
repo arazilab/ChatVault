@@ -17,12 +17,19 @@ export default defineContentScript({
           (message as { type?: unknown }).type !== 'chatgpt.list'
         )
           return undefined;
-        void fetch(
-          '/backend-api/conversations?offset=0&limit=100&order=updated&is_archived=false&is_starred=false',
-          {
-            credentials: 'include',
-          },
-        )
+        void fetchAccessToken()
+          .then((accessToken) =>
+            fetch(
+              '/backend-api/conversations?offset=0&limit=100&order=updated&is_archived=false&is_starred=false',
+              {
+                credentials: 'include',
+                headers: {
+                  Accept: 'application/json',
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              },
+            ),
+          )
           .then(async (response) => {
             if (!response.ok)
               throw new Error(
@@ -62,4 +69,25 @@ function responseFields(payload: unknown): string {
   return payload && typeof payload === 'object'
     ? Object.keys(payload).join(', ') || 'none'
     : 'non-object response';
+}
+
+async function fetchAccessToken(): Promise<string> {
+  const response = await fetch('/api/auth/session', {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok)
+    throw new Error(
+      `Session HTTP ${response.status} ${response.statusText || 'request failed'}`,
+    );
+  const payload: unknown = await response.json();
+  const accessToken =
+    payload && typeof payload === 'object'
+      ? (payload as { accessToken?: unknown }).accessToken
+      : undefined;
+  if (typeof accessToken !== 'string' || accessToken.length === 0)
+    throw new Error(
+      'No ChatGPT access token found. Refresh ChatGPT and sign in again.',
+    );
+  return accessToken;
 }

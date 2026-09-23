@@ -1,12 +1,5 @@
 import { defineContentScript } from 'wxt/sandbox';
 
-interface BridgeResponse {
-  type: 'chatgpt.list.result' | 'chatgpt.error';
-  requestId: string;
-  items?: unknown[];
-  message?: string;
-}
-
 interface PopupResponse {
   items: unknown[];
   error?: string;
@@ -24,44 +17,46 @@ export default defineContentScript({
           (message as { type?: unknown }).type !== 'chatgpt.list'
         )
           return undefined;
-        const requestId = crypto.randomUUID();
-        let settled = false;
-        const handler = (event: MessageEvent<BridgeResponse>) => {
-          if (
-            settled ||
-            event.source !== window ||
-            event.data.requestId !== requestId
-          )
-            return;
-          settled = true;
-          window.removeEventListener('message', handler);
-          if (event.data.type === 'chatgpt.list.result') {
-            sendResponse({
-              items: event.data.items ?? [],
-            } satisfies PopupResponse);
-          } else {
+        void fetch('/backend-api/conversations?offset=0&limit=100', {
+          credentials: 'include',
+        })
+          .then(async (response) => {
+            if (!response.ok)
+              throw new Error(
+                `HTTP ${response.status} ${response.statusText || 'request failed'}`,
+              );
+            const payload: unknown = await response.json();
+            const items = extractItems(payload);
+            if (items.length === 0)
+              throw new Error(
+                `ChatGPT returned no conversation items. Response fields: ${responseFields(payload)}`,
+              );
+            sendResponse({ items });
+          })
+          .catch((error: unknown) => {
             sendResponse({
               items: [],
-              error: event.data.message ?? 'ChatGPT request failed',
+              error: error instanceof Error ? error.message : String(error),
             } satisfies PopupResponse);
-          }
-        };
-        window.addEventListener('message', handler);
-        window.postMessage(
-          { type: 'chatgpt.list', requestId },
-          window.location.origin,
-        );
-        window.setTimeout(() => {
-          if (settled) return;
-          settled = true;
-          window.removeEventListener('message', handler);
-          sendResponse({
-            items: [],
-            error: 'Page bridge timed out',
-          } satisfies PopupResponse);
-        }, 10000);
+          });
         return true;
       },
     );
   },
 });
+
+function extractItems(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
+  for (const key of ['items', 'conversations', 'data']) {
+    const value = (payload as Record<string, unknown>)[key];
+    if (Array.isArray(value)) return value;
+  }
+  return [];
+}
+
+function responseFields(payload: unknown): string {
+  return payload && typeof payload === 'object'
+    ? Object.keys(payload).join(', ') || 'none'
+    : 'non-object response';
+}
